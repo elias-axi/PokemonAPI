@@ -1,15 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace PokemonAPI.Models.Entities
+﻿namespace PokemonAPI.Models.DTOs.Pokemon
 {
-    public class Pokemon
+    public class PokemonResponseDto
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-
-        public int PokeApiId { get; set; }  // ← Nuevo campo
         public string Name { get; set; } = string.Empty;
         public int Power { get; set; }
         public string Description { get; set; } = string.Empty;

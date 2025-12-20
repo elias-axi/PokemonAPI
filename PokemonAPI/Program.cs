@@ -6,6 +6,7 @@ using Microsoft.OpenApi.Models;
 using PokemonAPI.Cofiguracion;
 using PokemonAPI.Data;
 using PokemonAPI.Services.ServiceJwt;
+using PokemonAPI.Services.ServicesPokemon;
 using System.Reflection;
 using System.Text;
 
@@ -53,7 +54,9 @@ builder.Services.AddAuthentication(options =>
 });
 
 // Registrar servicios
+builder.Services.AddHttpClient();
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IPokemonService, PokemonService>();
 
 
 builder.Services.AddControllers();
