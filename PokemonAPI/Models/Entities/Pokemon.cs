@@ -9,7 +9,7 @@ namespace PokemonAPI.Models.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        public int PokeApiId { get; set; }  // ← Nuevo campo
+        public int PokeApiId { get; set; }  
         public string Name { get; set; } = string.Empty;
         public int Power { get; set; }
         public string Description { get; set; } = string.Empty;
