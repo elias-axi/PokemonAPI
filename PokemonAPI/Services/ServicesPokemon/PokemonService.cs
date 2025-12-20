@@ -64,7 +64,7 @@ namespace PokemonAPI.Services.ServicesPokemon
         {
             return new PokemonResponseDto
             {
-                Id = pokemon.Id,
+                Id = pokemon.PokeApiId,
                 Name = pokemon.Name,
                 Power = pokemon.Power,
                 Description = pokemon.Description,
