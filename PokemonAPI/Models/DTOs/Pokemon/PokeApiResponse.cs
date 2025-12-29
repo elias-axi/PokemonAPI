@@ -11,6 +11,20 @@
         public SpeciesInfo Species { get; set; } = new();
     }
 
+    public class PokeApiListResponse
+    {
+        public int Count { get; set; }
+        public string? Next { get; set; }
+        public string? Previous { get; set; }
+        public List<PokemonListItem> Results { get; set; } = new();
+    }
+
+    public class PokemonListItem
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Url { get; set; } = string.Empty;
+    }
+
     public class AbilityInfo
     {
         public AbilityDetail Ability { get; set; } = new();
