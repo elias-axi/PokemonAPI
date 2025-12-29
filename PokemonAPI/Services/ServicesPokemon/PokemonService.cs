@@ -23,42 +23,58 @@ namespace PokemonAPI.Services.ServicesPokemon
             _logger = logger;
         }
 
-        public async Task<PokemonResponseDto?> GetPokemonByNameAsync(string name)
+       public async Task<PokemonResponseDto?> GetPokemonByNameAsync(string name)
+{
+    try
+    {
+        var nombrePokemon = NormalizarNombrePokemon(name);
+
+        var existePokemon = await _context.Pokemons
+            .FirstOrDefaultAsync(p => p.Name.ToLower() == nombrePokemon);
+
+        if (existePokemon != null)
         {
-            try
+            _logger.LogInformation("Pokémon {Name} encontrado en la base de datos", name);
+
+            
+            var pokemonApi = await PokemonDeApiPublicaAsync(nombrePokemon);
+
+            if (pokemonApi != null)
             {
-                var nombrePokemon = NormalizarNombrePokemon(name);
+                bool huboCambios = SincronizarPokemon(existePokemon, pokemonApi);
 
-                var existePokemon = await _context.Pokemons
-                    .FirstOrDefaultAsync(p => p.Name.ToLower() == nombrePokemon);
-
-                if (existePokemon != null)
+                if (huboCambios)
                 {
-                    _logger.LogInformation("Pokémon {Name} encontrado en la base de datos", name);
-                    return MappearDToPokemon(existePokemon);
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("Pokémon {Name} actualizado desde la PokeAPI", name);
                 }
-
-                var pokemonDeApi = await PokemonDeApiPublicaAsync(nombrePokemon);
-
-                if (pokemonDeApi == null)
-                {
-                    _logger.LogWarning("Pokémon {Name} no encontrado en la PokeAPI", name);
-                    return null;
-                }
-
-                _context.Pokemons.Add(pokemonDeApi);
-                await _context.SaveChangesAsync();
-
-                _logger.LogInformation("Pokémon {Name} guardado exitosamente en la base de datos", name);
-
-                return MappearDToPokemon(pokemonDeApi);
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error al procesar el Pokémon {Name}", name);
-                throw;
-            }
+
+            return MappearDToPokemon(existePokemon);
         }
+
+        var pokemonDeApi = await PokemonDeApiPublicaAsync(nombrePokemon);
+
+        if (pokemonDeApi == null)
+        {
+            _logger.LogWarning("Pokémon {Name} no encontrado en la PokeAPI", name);
+            return null;
+        }
+
+        _context.Pokemons.Add(pokemonDeApi);
+        await _context.SaveChangesAsync();
+
+        _logger.LogInformation("Pokémon {Name} guardado exitosamente en la base de datos", name);
+
+        return MappearDToPokemon(pokemonDeApi);
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error al procesar el Pokémon {Name}", name);
+        throw;
+    }
+}
+
 
         public async Task<List<PokemonResponseDto>> GetAllPokemonsAsync(int limit = 20, int offset = 0)
         {
@@ -249,7 +265,42 @@ namespace PokemonAPI.Services.ServicesPokemon
                 return string.Empty;
             }
         }
+        private bool SincronizarPokemon(Pokemon db, Pokemon api)
+        {
+            bool cambios = false;
+
+            if (db.Power != api.Power)
+            {
+                db.Power = api.Power;
+                cambios = true;
+            }
+
+            if (db.Description != api.Description)
+            {
+                db.Description = api.Description;
+                cambios = true;
+            }
+
+            if (db.ImageUrl != api.ImageUrl)
+            {
+                db.ImageUrl = api.ImageUrl;
+                cambios = true;
+            }
+
+            if (db.Category != api.Category)
+            {
+                db.Category = api.Category;
+                cambios = true;
+            }
+
+            if (db.Nature != api.Nature)
+            {
+                db.Nature = api.Nature;
+                cambios = true;
+            }
+
+            return cambios;
+        }
+
     }
-
-
 }
